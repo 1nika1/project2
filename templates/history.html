@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %} History {% endblock %}
+
+{% block name %} History {% endblock%}
+
+{% block function %} Look at the history of the placed orders {% endblock%}
+
+{% block main %}
+  <table id="history-table" class="display table" cellspacing="0" width="100%">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Формат</th>
+        <th scope="col">Плотность</th>
+        <th scope="col">Измерения изделия</th>
+        <th scope="col">Тираж</th>
+        <th scope="col">Просчитан</th>
+        <th scope="col">Цена</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for element in elements %}
+      <tr>
+        <td>{{ element["number"] }}</td>
+        <td>{{ element["format"] }}</td>
+        <td>{{ element["density"] }}</td>
+        <td>{{ element["length"] }} * {{ element["width"] }}</td>
+        <td>{{ element["quantity"] }}</td>
+        <td>{{ element["placed"] }}</td>
+        <td>{{ element["price"] }}</td>
+      </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+
+  <script>
+     $(document).ready(function() {
+     $('#history-table').DataTable();
+     });
+  </script>
+{% endblock %}

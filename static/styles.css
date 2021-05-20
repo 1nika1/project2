@@ -1,0 +1,59 @@
+main .form-control
+{
+    display: inline-block;
+    width: auto;
+}
+
+.jumbotron
+{
+    color:white; 
+    background-color:grey;
+    min-height: 50%;
+    padding-bottom: 20px;  
+    padding-top: 20px;
+}
+body
+{
+    font-family: Helvetica, sans-serif;
+    text-align: center;
+}
+
+main
+{
+    overflow-x: auto;
+}
+
+nav {
+    background-color: white;
+    border: 1px solid grey;
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
+
+.navbar-brand {
+    font-weight:normal;
+}
+
+a.one:link, a:visited {
+  background-color: white;
+  color: black;
+  border: 2px solid grey;
+  padding-right: 20px;
+  padding-left: 20px;
+  padding-bottom: 5px;
+  padding-top: 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  border-radius: 5px; 
+}
+
+a.one:hover, a:active {
+  background-color: grey;
+  color: white;
+}
+
+input {
+  width: 50%;
+  text-align: center;
+}

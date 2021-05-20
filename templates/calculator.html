@@ -1,0 +1,197 @@
+{% extends "layout.html" %}
+
+{% block title %} Calculator {% endblock %}
+
+{% block name %} Calculator {% endblock %}
+
+{% block function %} Enter the values below to calculate the price of an item for printing {% endblock %}
+
+{% block main %}
+<form id="calculate-form" action="/calculator" method="post">
+    
+    <!--Table for values to enter-->
+    <table class="table table-striped">
+        <tr>
+            <th>Формат</th>
+            <td>
+                <select id="format" class="form-control" name="format" required>
+                    <option value="">Формат</option>
+                    {% for format in formats %}
+                        <option value="{{format}}">{{format}}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th>Плотность</th>
+            <td>
+                <select id="density" class="form-control" name="density" required>
+                    <option value="">Плотность</option>
+                    {% for density in densities %}
+                        <option value="{{density}}">{{density}}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th>Цветность</th>
+            <td>
+                <select id="color" class="form-control" name="сolor" required>
+                    <option value="">Цветность</option>
+                    {% for color in colors %}
+                        <option value="{{color}}">{{color}}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th>Длина * Ширина</th>
+            <td>
+                <input class="form-control" name="length" placeholder="Длина" type="number" id="length" min="1" required> *
+                <input class="form-control" name="width" placeholder="Ширина" type="number" id="width" min="1" required>
+            </td>
+        </tr>
+        <tr>
+            <th>Количество Страниц</th>
+            <td>
+                <input class="form-control" name="pages" placeholder="Стрaниц" type="number" id="pages" min="1" value="1" required>
+            </td>
+        </tr>
+        <tr>
+            <th>Тираж</th>
+            <td>
+                <input class="form-control" name="quantity" placeholder="Тираж" type="number" id="quantity" min="1" required>
+            </td>
+        </tr>
+        <tr>
+            <th>Приладка</th>
+            <td>
+                <input class="form-control" name="defect" placeholder="Приладка" type="number" id="defect" min="1" required>
+            </td>
+        </tr>
+        <tr>
+            <th>Цена Бумаги</th>
+            <td>
+                <input class="form-control" name="paper_price" type="number" step="any" id="paper_price" min="1" readonly required>
+                <a href="https://docs.google.com/spreadsheets/d/1cmOH79bQZSbKipWxOqpd8xsI6-8ftq0f15_YuU7UMLM/edit#gid=0" class="one" 
+                    style="text-align: left">Изменить</a>
+            </td>
+        </tr>
+        <tr>
+            <th>Пластины</th>
+            <td>
+                <input class="form-control" name="plastiny_price" type="number" step="any" id="plastiny_price" min="1" readonly required>
+                <a href="https://docs.google.com/spreadsheets/d/1cmOH79bQZSbKipWxOqpd8xsI6-8ftq0f15_YuU7UMLM/edit#gid=0" class="one" 
+                    style="text-align: left">Изменить</a>
+            </td>
+        </tr>
+        <tr>
+            <th>На листе:</th>
+            <td id="on_sheet"></td>
+        </tr>
+        <tr>
+            <th>Пластин:</th>
+            <td id="plastiny"></td>
+        </tr>
+       <tr>
+            <th>Цена:</th>
+            <td id="price"></td>
+        </tr>
+    </table>
+    
+    <!--Buttons-->
+    <button id="Calculate" class="btn btn-secondary btn-lg" type="button">Посчитать</button>
+    <button id="Place" class="btn btn-primary btn-lg" type="submit">Разместить</button>
+    
+    <script>
+    
+        // Assign constants and variables
+        const CONVERT = 1000000000;
+        
+        // Get data from spreadsheet 
+        let xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                let data = JSON.parse(this.responseText).feed.entry;
+                paper_price = parseFloat(data[0]["gsx$_cokwr"]["$t"])
+                plastiny_price = parseFloat(data[1]["gsx$_cokwr"]["$t"]);
+                update_UI();
+            }
+        };
+        // Open the spreadsheet
+        xmlhttp.open(
+            "GET",
+            "https://spreadsheets.google.com/feeds/list/1cmOH79bQZSbKipWxOqpd8xsI6-8ftq0f15_YuU7UMLM/od6/public/values?alt=json",
+            true
+        );
+        // Send the data from the spreadsheet
+        xmlhttp.send();
+        // Assign the calculated paper price to the field and check that all fields are filled
+        function update_UI() {
+            document.getElementById('paper_price').value = paper_price;
+            document.getElementById('plastiny_price').value = plastiny_price;
+            document.getElementById("Calculate").addEventListener("click", function(){
+               const formIsValid = document.getElementById('calculate-form').reportValidity();
+               if (formIsValid) calculate(paper_price, plastiny_price);
+            }
+            );
+        }
+        
+        // Function that calculates the price of an order
+        function calculate(paper_price, plastiny_price) {
+            
+            // Длина и Ширина бумаги
+            var format = document.getElementById("format").value;
+            var paper_width = parseInt(format.split("*", 1));
+            var paper_length = parseInt(format.split(/[*]+/).pop());
+            
+            // Длина и Ширина бумаги
+            var colors = document.getElementById("color").value;
+            var color = parseInt(colors.split("+", 1)) + parseInt(colors.split(/[+]+/).pop());
+            
+            // Длина и Ширина изделия 
+            var length = parseInt(document.getElementById("length").value);
+            var width = parseInt(document.getElementById("width").value);
+            
+            // Другие данные 
+            var quantity = parseInt(document.getElementById("quantity").value);
+            var defect = parseInt(document.getElementById("defect").value);
+            var pages = parseFloat(document.getElementById("pages").value);
+            
+            // Вес листа
+            var weight = parseInt(document.getElementById("density").value) * paper_length * paper_width / CONVERT;
+            
+            // Максимум на листе 
+            var max_1 = Math.floor((paper_length - 20) / length)*Math.floor((paper_width - 12)/ width);
+            var max_2 = Math.floor((paper_length - 20) / width)*Math.floor((paper_width - 12) / length);
+            if (max_1 > max_2)
+                var max = max_1;
+            else
+                max = max_2;
+             
+            // Листов нужно 
+            var sheets = pages / 2 / max * (quantity + defect);
+            
+            // Пластины
+            var plastiny = Math.ceil(pages / 2 / max) * color;
+            console.log ("plastiny price:", plastiny_price, "weight:", weight, "paper price:", paper_price)
+            
+            // Цена общая 
+            var one = parseFloat(plastiny_price) * plastiny;
+            var two = sheets * weight * parseFloat(paper_price);
+            
+            console.log ("one:", one, "two:", two);
+            var total_price = (sheets * weight * parseFloat(paper_price) + parseFloat(plastiny_price) * plastiny).toFixed(2);
+            
+            // Check if total price is found and update the field 
+            if (!isNaN(total_price)) {
+                document.getElementById("on_sheet").textContent = `${max}`;
+                document.getElementById("plastiny").textContent = `${plastiny}`;
+                document.getElementById("price").textContent = `$${total_price}`;
+            }
+            else 
+                document.getElementById("price").textContent = "";
+        }
+    </script>
+</form>
+{% endblock %}
