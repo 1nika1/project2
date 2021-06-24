@@ -8,7 +8,7 @@ import os
 
 app = Flask(__name__)
 
-db = SQL("postgres://kmfvxjwqmjhnwo:b356e4a7d98d373f074f660ed6930d9f7efcd8e23c2dfe145ed862419d0480a1@ec2-34-206-8-52.compute-1.amazonaws.com:5432/d22cvm9bkpi9gv")
+db = SQL("postgresql://kmfvxjwqmjhnwo:b356e4a7d98d373f074f660ed6930d9f7efcd8e23c2dfe145ed862419d0480a1@ec2-34-206-8-52.compute-1.amazonaws.com:5432/d22cvm9bkpi9gv")
 
 CONVERT = 1000000000;
 
